@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caesar Cipher</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        input, button { margin: 10px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Caesar Cipher Encryption & Decryption</h1>
+
+    <h2>Encrypt</h2>
+    <input type="text" id="encryptText" placeholder="Enter text to encrypt">
+    <input type="number" id="shiftValue" placeholder="Shift (1-25)">
+    <button onclick="encryptText()">Encrypt</button>
+    <p><strong>Encrypted:</strong> <span id="encryptedOutput"></span></p>
+
+    <h2>Decrypt</h2>
+    <input type="text" id="decryptText" placeholder="Enter text to decrypt">
+    
+    <!--<input type="number" id="decryptShiftValue" placeholder="Shift (1-25)">-->
+    <button onclick="decryptText()">Decrypt</button>
+    <p><strong>Decrypted:</strong> <span id="decryptedOutput"></span></p>
+
+    <script>
+        async function encryptText() {
+            let text = document.getElementById("encryptText").value;
+            let shift = parseInt(document.getElementById("shiftValue").value);
+            if (isNaN(shift) || shift < 1 || shift > 25) {
+                alert("Please enter a valid shift value (1-25).");
+                return;
+            }
+
+            let response = await fetch("http://127.0.0.1:5000/encrypted_text", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: text, shift: shift })
+            });
+
+            let result = await response.json();
+            if (result.error) {
+                alert(result.error);
+            } else {
+                document.getElementById("encryptedOutput").innerText = result.encryption_text + " (Shift: " + result.shift + ")";
+            }
+        }
+
+        async function decryptText() {
+            let text = document.getElementById("decryptText").value;
+            //let shift = parseInt(document.getElementById("decryptShiftValue").value);
+
+            /*if (isNaN(shift) || shift < 1 || shift > 25) {
+                alert("Please enter a valid shift value (1-25).");
+                return;
+            }*/
+
+            let response = await fetch("http://127.0.0.1:5000/decrypted_text", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: text })
+            });
+
+            let result = await response.json();
+            if (result.error) {
+                alert(result.error);
+            } else {
+                document.getElementById("decryptedOutput").innerText = result.decryption_text;
+            }
+        }
+    </script>
+</body>
+</html>
+
